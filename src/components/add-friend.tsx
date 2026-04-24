@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { SendHorizonal, UserPlus, X } from "lucide-react"
+import { SendHorizonal, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
@@ -17,7 +17,7 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${session?.accessToken || ""}`
+            Authorization: `Bearer ${session?.accessToken || ""}`,
           },
           body: JSON.stringify({ email }),
         }
