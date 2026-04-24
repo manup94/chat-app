@@ -7,21 +7,10 @@ export const useSocket = (url: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      console.log("No se encontró token en localStorage, esperando login...");
-      return;
-    }
-
-    console.log("Intentando conectar socket con token:", token ? "EXISTE" : "VACÍO");
     const socketInstance = io(url, {
       withCredentials: true,
       autoConnect: true,
       transports: ['websocket'],
-      auth: {
-        token: token,
-      },
     });
 
     socketInstance.onAny((event, ...args) => {

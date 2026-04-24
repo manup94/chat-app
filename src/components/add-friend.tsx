@@ -2,8 +2,10 @@ import { AnimatePresence, motion } from "framer-motion"
 import { SendHorizonal, UserPlus, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 
 export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
+  const { data: session } = useSession()
   const [email, setEmail] = useState("")
   const [isOpen, setIsOpen] = useState(false)
 
@@ -15,7 +17,7 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Authorization": `Bearer ${(session as any)?.accessToken}`
           },
           body: JSON.stringify({ email }),
         }

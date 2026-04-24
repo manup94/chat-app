@@ -20,7 +20,7 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   const fetchFriends = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friends`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        credentials: "include",
       })
 
       if (!res.ok) {

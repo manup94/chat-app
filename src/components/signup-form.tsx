@@ -48,22 +48,6 @@ export const SignupForm = () => {
           }
           reset()
         } else {
-          const loginRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: data.email,
-                password: data.password,
-              }),
-            }
-          )
-          const loginData = await loginRes.json()
-          if (loginData.token) {
-            localStorage.setItem("token", loginData.token)
-          }
-
           toast.success(`Bienvenido ${data.name}`)
           router.push("/inicio")
           reset()

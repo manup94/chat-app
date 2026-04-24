@@ -6,6 +6,7 @@ import { FriendAndUserStatus } from "@/models/interfaces/friend-and-user-status"
 import { Message } from "@/models/interfaces/message"
 import { Send } from "lucide-react"
 import { useSocket } from "@/hooks/use-socket"
+import { useSession } from "next-auth/react"
 
 interface ChatWindowProps {
   friend: Friend
@@ -30,11 +31,11 @@ export default function ChatWindow({
 
   useEffect(() => {
     const fetchMessages = async () => {
-      setLoading(true)
+        setLoading(true)
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${friend.id}`, {
-          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+          credentials: "include",
         })
         if (response.ok) {
           const data = await response.json()
@@ -209,6 +210,12 @@ export default function ChatWindow({
           className="bg-purple-800 hover:bg-purple-900 disabled:bg-gray-200 disabled:cursor-not-allowed text-white p-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
         >
           <Send size={18} />
+        </button>
+      </form>
+    </div>
+  )
+}
+end size={18} />
         </button>
       </form>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 
 interface FriendRequest {
   id: string
@@ -10,12 +11,15 @@ export const FriendRequests = ({
 }: {
   onAction: () => Promise<void> | void
 }) => {
+  const { data: session } = useSession()
   const [requests, setRequests] = useState<FriendRequest[]>([])
 
   const fetchRequests = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-requests`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        headers: {
+          "Authorization": `Bearer ${(session as any)?.accessToken}`
+        }
       })
       if (response.ok) {
         const data = await response.json()
@@ -29,8 +33,10 @@ export const FriendRequests = ({
   }
 
   useEffect(() => {
-    fetchRequests()
-  }, [])
+    if (session) {
+      fetchRequests()
+    }
+  }, [session])
 
   const handleAction = async (id: string, status: string) => {
     try {
@@ -38,7 +44,7 @@ export const FriendRequests = ({
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}` 
+          "Authorization": `Bearer ${(session as any)?.accessToken}`
         },
         body: JSON.stringify({ status }),
       })

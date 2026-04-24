@@ -1,6 +1,11 @@
-import { User } from "@/models/interfaces/user"
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+
+type AuthenticatedUser = {
+  id: string
+  name: string
+  email: string
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,7 +21,10 @@ export const authOptions: NextAuthOptions = {
             `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
             {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                "x-internal-api-secret": process.env.API_INTERNAL_SECRET ?? "",
+              },
               body: JSON.stringify({
                 email: credentials?.email,
                 password: credentials?.password,
@@ -30,7 +38,7 @@ export const authOptions: NextAuthOptions = {
 
           const data = await res.json()
 
-          if (!data.token || !data.user) {
+          if (!data.user || !data.token) {
             console.error("Respuesta inválida del backend:", data)
             return null
           }
@@ -39,8 +47,8 @@ export const authOptions: NextAuthOptions = {
             id: data.user.id,
             name: data.user.name,
             email: data.user.email,
-            token: data.token,
-          }
+            accessToken: data.token,
+          } as any
         } catch (error) {
           console.error("Error en authorize:", error)
           throw new Error(
@@ -56,9 +64,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const u = user as User
+        const u = user as AuthenticatedUser
 
-        token.accessToken = u.token
         token.id = u.id
         token.email = u.email
         token.name = u.name
@@ -78,4 +85,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
+}
+ process.env.NEXTAUTH_SECRET,
 }

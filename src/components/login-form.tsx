@@ -45,18 +45,12 @@ export const LoginForm = () => {
           }
           reset()
         } else {
-          const loginRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
-            {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify(data),
-            }
-          )
-          const loginData = await loginRes.json();
-          if (loginData.token) {
-            localStorage.setItem("token", loginData.token);
-          }
+          })
 
           const session = await getSession()
           toast.success(`Bienvenido ${session?.user?.name}`)
