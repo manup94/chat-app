@@ -12,6 +12,7 @@ import Link from "next/link"
 import { signupSchema } from "@/models/validation-schemas/signup.schema"
 import { userSignup } from "@/use-cases/user-signup"
 import { signIn } from "next-auth/react"
+import { toast } from "sonner"
 
 export const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -47,6 +48,23 @@ export const SignupForm = () => {
           }
           reset()
         } else {
+          const loginRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: data.email,
+                password: data.password,
+              }),
+            }
+          )
+          const loginData = await loginRes.json()
+          if (loginData.token) {
+            localStorage.setItem("token", loginData.token)
+          }
+
+          toast.success(`Bienvenido ${data.name}`)
           router.push("/inicio")
           reset()
         }

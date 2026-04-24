@@ -1,11 +1,10 @@
 import { FriendAndUserStatus } from "./friend-and-user-status"
 
-export interface User {
+export interface Friend {
   id: string
   name: string
-  email: string
-  token: string
-  avatar?: string
+  email?: string
   status: FriendAndUserStatus
-  lastActivityAt: number
+  lastMessage?: string
+  lastActivityAt?: string
 }

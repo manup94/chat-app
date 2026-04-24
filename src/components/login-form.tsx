@@ -11,6 +11,7 @@ import { getSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Spinner } from "./spinner"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -40,16 +41,31 @@ export const LoginForm = () => {
         if (res?.error != null) {
           if (res.status === 401) {
             setShowIncorrect(true)
+            toast.error("Email o contraseña incorrectos")
           }
           reset()
         } else {
+          const loginRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+            {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            }
+          )
+          const loginData = await loginRes.json();
+          if (loginData.token) {
+            localStorage.setItem("token", loginData.token);
+          }
+
           const session = await getSession()
-          console.log(`Bienvenido ${session?.user?.name}`)
+          toast.success(`Bienvenido ${session?.user?.name}`)
           router.push("/inicio")
           reset()
         }
       })
     } catch (error) {
+      toast.error("Ha ocurrido un error al iniciar sesión")
       console.error(error)
     }
   }
