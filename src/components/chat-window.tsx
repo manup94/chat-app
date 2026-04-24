@@ -23,6 +23,7 @@ export default function ChatWindow({
   socketUrl,
   onConversationActivity,
 }: ChatWindowProps) {
+  const { data: session } = useSession()
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [newMessage, setNewMessage] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(initialMessages.length === 0)
@@ -31,11 +32,12 @@ export default function ChatWindow({
 
   useEffect(() => {
     const fetchMessages = async () => {
-        setLoading(true)
-
+      setLoading(true)
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${friend.id}`, {
-          credentials: "include",
+          headers: {
+            "Authorization": `Bearer ${(session as any)?.accessToken}`
+          }
         })
         if (response.ok) {
           const data = await response.json()
@@ -48,8 +50,10 @@ export default function ChatWindow({
       }
     }
 
-    fetchMessages()
-  }, [friend.id])
+    if (session) {
+      fetchMessages()
+    }
+  }, [friend.id, session])
 
   useEffect(() => {
     if (!socket) return
@@ -97,14 +101,8 @@ export default function ChatWindow({
         content: newMessage,
         receiverId: friend.id,
       }
-      console.log("Emitiendo evento sendMessage con datos:", msgData)
       socket.emit("sendMessage", msgData)
       setNewMessage("")
-    } else {
-      console.error(
-        "Socket no conectado o mensaje vacío, estado socket:",
-        !!socket
-      )
     }
   }
 
@@ -210,12 +208,6 @@ export default function ChatWindow({
           className="bg-purple-800 hover:bg-purple-900 disabled:bg-gray-200 disabled:cursor-not-allowed text-white p-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
         >
           <Send size={18} />
-        </button>
-      </form>
-    </div>
-  )
-}
-end size={18} />
         </button>
       </form>
     </div>
