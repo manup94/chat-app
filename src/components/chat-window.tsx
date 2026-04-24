@@ -36,7 +36,7 @@ export default function ChatWindow({
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${friend.id}`, {
           headers: {
-            "Authorization": `Bearer ${(session as any)?.accessToken}`
+            "Authorization": `Bearer ${session?.accessToken || ""}`
           }
         })
         if (response.ok) {

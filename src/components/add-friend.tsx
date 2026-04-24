@@ -17,7 +17,7 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${(session as any)?.accessToken}`
+            "Authorization": `Bearer ${session?.accessToken || ""}`
           },
           body: JSON.stringify({ email }),
         }

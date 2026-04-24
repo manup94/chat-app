@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react"
+"use client"
+
+import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
 
 interface FriendRequest {
@@ -14,11 +16,13 @@ export const FriendRequests = ({
   const { data: session } = useSession()
   const [requests, setRequests] = useState<FriendRequest[]>([])
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
+    if (!session?.accessToken) return
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-requests`, {
         headers: {
-          "Authorization": `Bearer ${(session as any)?.accessToken}`
+          "Authorization": `Bearer ${session.accessToken}`
         }
       })
       if (response.ok) {
@@ -30,21 +34,21 @@ export const FriendRequests = ({
     } catch (error) {
       console.error("Error fetching requests:", error)
     }
-  }
+  }, [session?.accessToken])
 
   useEffect(() => {
-    if (session) {
-      fetchRequests()
-    }
-  }, [session])
+    fetchRequests()
+  }, [fetchRequests])
 
   const handleAction = async (id: string, status: string) => {
+    if (!session?.accessToken) return
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-request/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${(session as any)?.accessToken}`
+          "Authorization": `Bearer ${session.accessToken}`
         },
         body: JSON.stringify({ status }),
       })

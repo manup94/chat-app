@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
             name: data.user.name,
             email: data.user.email,
             accessToken: data.token,
-          } as any
+          }
         } catch (error) {
           console.error("Error en authorize:", error)
           throw new Error(
@@ -58,18 +58,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const u = user as any
-        token.id = u.id
-        token.email = u.email
-        token.name = u.name
-        token.accessToken = u.accessToken
+        token.id = user.id
+        token.accessToken = user.accessToken
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
-        ;(session.user as any).id = token.id as string
-        ;(session.user as any).accessToken = token.accessToken
+        session.user.id = token.id
+        session.accessToken = token.accessToken
       }
       return session
     },
