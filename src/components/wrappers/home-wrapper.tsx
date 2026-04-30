@@ -22,10 +22,7 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   const fetchFriends = useCallback(async () => {
     try {
       const res = await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/friends`,
-        {
-          credentials: "include",
-        }
+        `${process.env.NEXT_PUBLIC_API_URL}/api/friends`
       )
 
       if (!res.ok) {
