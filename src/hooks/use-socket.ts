@@ -2,16 +2,21 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { signOut } from 'next-auth/react';
 
-export const useSocket = (url: string) => {
+export const useSocket = (url: string, token?: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!url) return;
+
     const socketInstance = io(url, {
       withCredentials: true,
       autoConnect: true,
       transports: ['websocket'],
+      auth: {
+        token: token
+      }
     });
 
     socketInstance.onAny((event, ...args) => {
@@ -46,7 +51,7 @@ export const useSocket = (url: string) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [url]);
+  }, [url, token]);
 
   return { socket, isConnected, error };
 };

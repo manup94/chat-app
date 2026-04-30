@@ -31,7 +31,7 @@ export const ChatWindow = ({
   const { fetchWithAuth } = useApi()
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  const { socket, isConnected, error } = useSocket(socketUrl)
+  const { socket, isConnected, error } = useSocket(socketUrl, session?.accessToken)
 
   useEffect(() => {
     const fetchMessages = async () => {
