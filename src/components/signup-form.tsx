@@ -85,7 +85,7 @@ export const SignupForm = () => {
             errors.name
               ? "border-red-500"
               : "border-white focus:border-purple-800"
-          } p-2 rounded text-white outline-none `}
+          } p-2 rounded text-white outline-none text-base md:text-sm `}
         />
         {errors.name && (
           <motion.span
@@ -120,7 +120,7 @@ export const SignupForm = () => {
             errors.email
               ? "border-red-500"
               : "border-white focus:border-purple-800"
-          } p-2 rounded text-white outline-none `}
+          } p-2 rounded text-white outline-none text-base md:text-sm `}
         />
         {errors.email && (
           <motion.span
@@ -156,7 +156,7 @@ export const SignupForm = () => {
               errors.password
                 ? "border-red-500"
                 : "border-white focus:border-purple-800"
-            } p-2 rounded text-white outline-none w-full pr-10`}
+            } p-2 rounded text-white outline-none w-full pr-10 text-base md:text-sm`}
           />
           <span
             onClick={() => setShowPassword((prev) => !prev)}

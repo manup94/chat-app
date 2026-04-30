@@ -1,11 +1,17 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import Providers from "./providers"
 
 export const metadata: Metadata = {
   title: "Chat Application",
   description: "Chat Application",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
