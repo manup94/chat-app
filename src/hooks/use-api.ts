@@ -1,9 +1,10 @@
 import { signOut, useSession } from "next-auth/react";
+import { useCallback } from "react";
 
 export const useApi = () => {
   const { data: session } = useSession();
 
-  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const fetchWithAuth = useCallback(async (url: string, options: RequestInit = {}) => {
     const headers: HeadersInit = {
       ...options.headers,
     };
@@ -35,7 +36,7 @@ export const useApi = () => {
     }
 
     return response;
-  };
+  }, [session?.accessToken]);
 
   return { fetchWithAuth };
 };
