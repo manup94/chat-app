@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
+import { useApi } from "@/hooks/use-api"
 
 interface FriendRequest {
   id: string
@@ -14,17 +15,12 @@ export const FriendRequests = ({
   onAction: () => Promise<void> | void
 }) => {
   const { data: session } = useSession()
+  const { fetchWithAuth } = useApi()
   const [requests, setRequests] = useState<FriendRequest[]>([])
 
   const fetchRequests = useCallback(async () => {
-    if (!session?.accessToken) return
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-requests`, {
-        headers: {
-          "Authorization": `Bearer ${session.accessToken}`
-        }
-      })
+      const response = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-requests`)
       if (response.ok) {
         const data = await response.json()
         setRequests(data)
@@ -34,21 +30,20 @@ export const FriendRequests = ({
     } catch (error) {
       console.error("Error fetching requests:", error)
     }
-  }, [session?.accessToken])
+  }, [fetchWithAuth])
 
   useEffect(() => {
-    fetchRequests()
-  }, [fetchRequests])
+    if (session) {
+      fetchRequests()
+    }
+  }, [fetchRequests, session])
 
   const handleAction = async (id: string, status: string) => {
-    if (!session?.accessToken) return
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-request/${id}`, {
+      const response = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/friend-request/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.accessToken}`
         },
         body: JSON.stringify({ status }),
       })

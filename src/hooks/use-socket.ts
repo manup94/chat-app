@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { signOut } from 'next-auth/react';
 
 export const useSocket = (url: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -29,6 +30,11 @@ export const useSocket = (url: string) => {
     socketInstance.on('connect_error', (err) => {
       setError(err);
       setIsConnected(false);
+      
+      if (err.message.includes("Authentication error")) {
+        console.warn("Error de autenticación en Socket. Cerrando sesión...");
+        signOut({ callbackUrl: "/login" });
+      }
     });
 
     socketInstance.on('error', (err) => {

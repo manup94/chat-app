@@ -1,12 +1,13 @@
 "use client"
 
-import ChatWindow from "../chat-window"
 import UsersList from "../friends-list"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Friend } from "@/models/interfaces/friend"
 import { Menu, X } from "lucide-react"
 import { Session } from "next-auth"
 import { Message } from "@/models/interfaces/message"
+import { useApi } from "@/hooks/use-api"
+import { ChatWindow } from "../chat-window"
 
 interface HomeWrapperProps {
   initialSession: Session
@@ -16,12 +17,16 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { fetchWithAuth } = useApi()
 
-  const fetchFriends = async () => {
+  const fetchFriends = useCallback(async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/friends`, {
-        credentials: "include",
-      })
+      const res = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/friends`,
+        {
+          credentials: "include",
+        }
+      )
 
       if (!res.ok) {
         throw new Error("Failed to fetch friends")
@@ -42,11 +47,11 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
     } catch (err) {
       console.error("Error fetching friends:", err)
     }
-  }
+  }, [fetchWithAuth])
 
   useEffect(() => {
     fetchFriends()
-  }, [])
+  }, [fetchFriends])
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
@@ -67,8 +72,12 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
           : friend
       )
 
-      const activeFriend = updatedFriends.find((friend) => friend.id === friendId)
-      const otherFriends = updatedFriends.filter((friend) => friend.id !== friendId)
+      const activeFriend = updatedFriends.find(
+        (friend) => friend.id === friendId
+      )
+      const otherFriends = updatedFriends.filter(
+        (friend) => friend.id !== friendId
+      )
 
       return activeFriend ? [activeFriend, ...otherFriends] : updatedFriends
     })
@@ -121,21 +130,21 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
         </div>
 
         {selectedFriend ? (
-            <ChatWindow
-              friend={selectedFriend}
-              initialMessages={[]}
-              currentUserId={initialSession.user?.id ?? ""}
-              socketUrl={
-                process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
-              }
-              onConversationActivity={handleConversationActivity}
-            />
+          <ChatWindow
+            friend={selectedFriend}
+            initialMessages={[]}
+            currentUserId={initialSession.user?.id ?? ""}
+            socketUrl={
+              process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
+            }
+            onConversationActivity={handleConversationActivity}
+          />
         ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-400">
-                {friends.length === 0 
-                  ? "No tienes amigos todavía. ¡Añade algunos!" 
-                  : "Selecciona un amigo para empezar a chatear"}
-            </div>
+          <div className="flex-1 flex items-center justify-center text-gray-400">
+            {friends.length === 0
+              ? "No tienes amigos todavía. ¡Añade algunos!"
+              : "Selecciona un amigo para empezar a chatear"}
+          </div>
         )}
       </div>
     </div>

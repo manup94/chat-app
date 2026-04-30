@@ -2,22 +2,21 @@ import { AnimatePresence, motion } from "framer-motion"
 import { SendHorizonal, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useSession } from "next-auth/react"
+import { useApi } from "@/hooks/use-api"
 
 export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
-  const { data: session } = useSession()
+  const { fetchWithAuth } = useApi()
   const [email, setEmail] = useState("")
   const [isOpen, setIsOpen] = useState(false)
 
   const handleAdd = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/friend-request`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.accessToken || ""}`,
           },
           body: JSON.stringify({ email }),
         }

@@ -7,26 +7,29 @@ import { Message } from "@/models/interfaces/message"
 import { Send } from "lucide-react"
 import { useSocket } from "@/hooks/use-socket"
 import { useSession } from "next-auth/react"
+import { useApi } from "@/hooks/use-api"
 
 interface ChatWindowProps {
   friend: Friend
   initialMessages: Message[]
   currentUserId: string
   socketUrl: string
-  onConversationActivity?: (message: Message) => void
+  onConversationActivity: (message: Message) => void
 }
 
-export default function ChatWindow({
+export const ChatWindow = ({
   friend,
   initialMessages,
   currentUserId,
   socketUrl,
   onConversationActivity,
-}: ChatWindowProps) {
-  const { data: session } = useSession()
+}: ChatWindowProps) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
-  const [newMessage, setNewMessage] = useState<string>("")
-  const [loading, setLoading] = useState<boolean>(initialMessages.length === 0)
+  const [newMessage, setNewMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const { data: session } = useSession()
+  const { fetchWithAuth } = useApi()
+
   const scrollRef = useRef<HTMLDivElement>(null)
   const { socket, isConnected, error } = useSocket(socketUrl)
 
@@ -34,11 +37,9 @@ export default function ChatWindow({
     const fetchMessages = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/${friend.id}`, {
-          headers: {
-            "Authorization": `Bearer ${session?.accessToken || ""}`
-          }
-        })
+        const response = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/messages/${friend.id}`
+        )
         if (response.ok) {
           const data = await response.json()
           setMessages(data)
@@ -59,10 +60,7 @@ export default function ChatWindow({
     if (!socket) return
 
     socket.on("receiveMessage", (message: Message) => {
-      if (
-        message.senderId !== friend.id &&
-        message.receiverId !== friend.id
-      ) {
+      if (message.senderId !== friend.id && message.receiverId !== friend.id) {
         return
       }
 
@@ -120,7 +118,7 @@ export default function ChatWindow({
         <div className="flex items-center">
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-              {friend.name?.[0]?.toUpperCase() || '?'}
+              {friend.name?.[0]?.toUpperCase() || "?"}
             </div>
             <span
               className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
@@ -172,7 +170,9 @@ export default function ChatWindow({
                       : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                   }`}
                 >
-                  <p className="text-[15px] leading-relaxed">{message.content}</p>
+                  <p className="text-[15px] leading-relaxed">
+                    {message.content}
+                  </p>
                   <p
                     className={`text-[10px] mt-1.5 font-medium ${
                       isCurrentUser ? "text-purple-200" : "text-gray-400"
