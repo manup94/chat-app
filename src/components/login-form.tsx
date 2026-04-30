@@ -33,31 +33,24 @@ export const LoginForm = () => {
   })
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      signIn("credentials", {
+      const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
-      }).then(async (res) => {
-        if (res?.error != null) {
-          if (res.status === 401) {
-            setShowIncorrect(true)
-            toast.error("Email o contraseña incorrectos")
-          }
-          reset()
-        } else {
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(data),
-          })
-
-          const session = await getSession()
-          toast.success(`Bienvenido ${session?.user?.name}`)
-          router.push("/inicio")
-          reset()
-        }
       })
+
+      if (res?.error != null) {
+        if (res.status === 401) {
+          setShowIncorrect(true)
+          toast.error("Email o contraseña incorrectos")
+        }
+        reset()
+      } else {
+        const session = await getSession()
+        toast.success(`Bienvenido ${session?.user?.name}`)
+        router.push("/inicio")
+        reset()
+      }
     } catch (error) {
       toast.error("Ha ocurrido un error al iniciar sesión")
       console.error(error)
