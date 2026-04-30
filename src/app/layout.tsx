@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`flex items-center justify-center min-h-screen antialiased`}
+        className="antialiased h-full w-full"
       >
         <Providers>{children}</Providers>
       </body>

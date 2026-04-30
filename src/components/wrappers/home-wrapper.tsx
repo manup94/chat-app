@@ -86,7 +86,7 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-white relative">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-white relative">
       {/* Sidebar Overlay (Mobile only) */}
       {isSidebarOpen && (
         <div
@@ -114,28 +114,33 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full w-full">
-        {/* Mobile Header Toggle */}
-        <div className="md:hidden p-4 border-b border-gray-100 flex items-center bg-white">
-          <button
-            onClick={toggleSidebar}
-            className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <span className="ml-2 font-bold text-purple-800">ChatApp</span>
-        </div>
+      <div className="flex-1 flex flex-col h-full w-full relative">
+        {/* Mobile Header Toggle - Only show if no friend is selected or on medium screens */}
+        {(!selectedFriend || isSidebarOpen) && (
+          <div className="md:hidden p-4 border-b border-gray-100 flex items-center bg-white shrink-0">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <span className="ml-2 font-bold text-purple-800">ChatApp</span>
+          </div>
+        )}
 
         {selectedFriend ? (
-          <ChatWindow
-            friend={selectedFriend}
-            initialMessages={[]}
-            currentUserId={initialSession.user?.id ?? ""}
-            socketUrl={
-              process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
-            }
-            onConversationActivity={handleConversationActivity}
-          />
+          <div className="flex-1 flex flex-col min-h-0">
+            <ChatWindow
+              friend={selectedFriend}
+              initialMessages={[]}
+              currentUserId={initialSession.user?.id ?? ""}
+              socketUrl={
+                process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
+              }
+              onConversationActivity={handleConversationActivity}
+              onBack={() => setSelectedFriend(null)} // Pass a way to go back on mobile
+            />
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-400">
             {friends.length === 0

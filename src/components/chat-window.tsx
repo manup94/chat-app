@@ -4,7 +4,7 @@ import { Friend } from "@/models/interfaces/friend"
 import { useState, useRef, useEffect } from "react"
 import { FriendAndUserStatus } from "@/models/interfaces/friend-and-user-status"
 import { Message } from "@/models/interfaces/message"
-import { Send } from "lucide-react"
+import { Send, ArrowLeft } from "lucide-react"
 import { useSocket } from "@/hooks/use-socket"
 import { useSession } from "next-auth/react"
 import { useApi } from "@/hooks/use-api"
@@ -15,6 +15,7 @@ interface ChatWindowProps {
   currentUserId: string
   socketUrl: string
   onConversationActivity: (message: Message) => void
+  onBack?: () => void
 }
 
 export const ChatWindow = ({
@@ -23,6 +24,7 @@ export const ChatWindow = ({
   currentUserId,
   socketUrl,
   onConversationActivity,
+  onBack,
 }: ChatWindowProps) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [newMessage, setNewMessage] = useState("")
@@ -54,7 +56,7 @@ export const ChatWindow = ({
     if (session) {
       fetchMessages()
     }
-  }, [friend.id, session])
+  }, [friend.id, session, fetchWithAuth])
 
   useEffect(() => {
     if (!socket) return
@@ -112,10 +114,18 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <div className="p-4 bg-white border-b border-gray-100 flex items-center justify-between">
+      <div className="p-4 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
         <div className="flex items-center">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="md:hidden p-2 -ml-2 mr-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft size={24} />
+            </button>
+          )}
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
               {friend.name?.[0]?.toUpperCase() || "?"}
@@ -144,14 +154,15 @@ export const ChatWindow = ({
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 p-6 overflow-y-auto bg-gray-50/50">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50/50 flex flex-col scroll-smooth">
+        <div className="flex-1" /> {/* Spacer to push messages down if few */}
         {loading ? (
-          <div className="flex justify-center items-center h-full text-gray-400">
+          <div className="flex justify-center items-center py-4 text-gray-400">
             Cargando mensajes...
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex justify-center items-center h-full text-gray-400">
-            No hay mensajes aún. ¡Di hola!
+          <div className="flex justify-center items-center py-10 text-gray-400 text-center">
+            No hay mensajes aún.<br />¡Di hola!
           </div>
         ) : (
           messages.map((message) => {
@@ -164,13 +175,13 @@ export const ChatWindow = ({
                 }`}
               >
                 <div
-                  className={`max-w-[75%] p-3 px-4 rounded-2xl shadow-sm ${
+                  className={`max-w-[85%] sm:max-w-[75%] p-3 px-4 rounded-2xl shadow-sm ${
                     isCurrentUser
                       ? "bg-purple-800 text-white rounded-br-none"
                       : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                   }`}
                 >
-                  <p className="text-[15px] leading-relaxed">
+                  <p className="text-[15px] leading-relaxed break-words">
                     {message.content}
                   </p>
                   <p
@@ -187,27 +198,27 @@ export const ChatWindow = ({
           })
         )}
         {/* Anchor for auto-scroll */}
-        <div ref={scrollRef} />
+        <div ref={scrollRef} className="h-0" />
       </div>
 
       {/* Input area */}
       <form
         onSubmit={handleSubmit}
-        className="p-4 bg-white border-t border-gray-100 flex items-center gap-x-3"
+        className="p-4 pb-[env(safe-area-inset-bottom,1rem)] bg-white border-t border-gray-100 flex items-center gap-x-3 shrink-0"
       >
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 bg-gray-100 border-none rounded-full px-5 py-2.5 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-800/20 transition-all"
+          className="flex-1 bg-gray-100 border-none rounded-2xl px-5 py-3 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-800/20 transition-all"
         />
         <button
           type="submit"
           disabled={!newMessage.trim()}
-          className="bg-purple-800 hover:bg-purple-900 disabled:bg-gray-200 disabled:cursor-not-allowed text-white p-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+          className="bg-purple-800 hover:bg-purple-900 disabled:bg-gray-200 disabled:cursor-not-allowed text-white p-3 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center shrink-0"
         >
-          <Send size={18} />
+          <Send size={20} />
         </button>
       </form>
     </div>
