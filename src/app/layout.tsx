@@ -5,6 +5,7 @@ import Providers from "./providers"
 export const metadata: Metadata = {
   title: "Chat Application",
   description: "Chat Application",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
 }
 
 export default function RootLayout({
