@@ -8,6 +8,7 @@
 :root {
   --brand-primary: #5b21b6; /* purple-800 */
   --brand-primary-hover: #4c1d95; /* purple-900 */
+  color-scheme: light;
 }
 
 html,
@@ -19,8 +20,20 @@ body {
 }
 
 body {
-  background: #f9f9f9;
+  background: #f5f5f4;
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 input:-webkit-autofill,

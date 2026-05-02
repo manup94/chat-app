@@ -3,7 +3,6 @@
 import UsersList from "../friends-list"
 import { useState, useEffect, useCallback } from "react"
 import { Friend } from "@/models/interfaces/friend"
-import { Menu, X } from "lucide-react"
 import { Session } from "next-auth"
 import { Message } from "@/models/interfaces/message"
 import { useApi } from "@/hooks/use-api"
@@ -16,7 +15,6 @@ interface HomeWrapperProps {
 export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const {
     fetchWithAuth,
     authStatus,
@@ -59,8 +57,6 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
     fetchFriends()
   }, [accessToken, authStatus, fetchFriends, hasAccessToken])
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-
   const handleConversationActivity = (message: Message) => {
     const friendId =
       message.senderId === initialSession.user?.id
@@ -91,28 +87,14 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
 
   const selectFriend = (friend: Friend) => {
     setSelectedFriend(friend)
-    setIsSidebarOpen(false)
   }
 
   return (
-    <div className="flex h-[100dvh] w-full overflow-hidden bg-white relative">
-      {/* Sidebar Overlay (Mobile only) */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
-          onClick={toggleSidebar}
-        />
-      )}
-
-      {/* Sidebar Container */}
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-stone-100">
       <div
-        className={`
-        fixed md:relative z-50 md:z-auto h-full w-[280px] md:w-1/3 lg:w-1/4 
-        transform transition-transform duration-300 ease-in-out border-r border-gray-100
-        ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }
-      `}
+        className={`h-full w-full border-r border-stone-200 bg-white md:flex md:w-[340px] md:max-w-[38vw] md:flex-col lg:w-[360px] ${
+          selectedFriend ? "hidden md:flex" : "flex"
+        }`}
       >
         <UsersList
           friends={friends}
@@ -122,23 +104,13 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
         />
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full w-full relative">
-        {/* Mobile Header Toggle - Only show if no friend is selected or on medium screens */}
-        {(!selectedFriend || isSidebarOpen) && (
-          <div className="md:hidden p-4 border-b border-gray-100 flex items-center bg-white shrink-0">
-            <button
-              onClick={toggleSidebar}
-              className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            <span className="ml-2 font-bold text-purple-800">ChatApp</span>
-          </div>
-        )}
-
+      <div
+        className={`min-w-0 flex-1 flex-col bg-white md:flex ${
+          selectedFriend ? "flex" : "hidden md:flex"
+        }`}
+      >
         {selectedFriend ? (
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex min-h-0 flex-1 flex-col">
             <ChatWindow
               friend={selectedFriend}
               initialMessages={[]}
@@ -148,14 +120,19 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
                 process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
               }
               onConversationActivity={handleConversationActivity}
-              onBack={() => setSelectedFriend(null)} // Pass a way to go back on mobile
+              onBack={() => setSelectedFriend(null)}
             />
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
-            {friends.length === 0
-              ? "No tienes amigos todavía. ¡Añade algunos!"
-              : "Selecciona un amigo para empezar a chatear"}
+          <div className="hidden h-full flex-1 items-center justify-center bg-stone-50 md:flex">
+            <div className="max-w-sm rounded-[28px] border border-stone-200 bg-white px-8 py-10 text-center shadow-sm">
+              <p className="text-lg font-semibold text-stone-900">
+                Selecciona una conversación
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-500">
+                Elige un chat desde la lista para abrir la conversación.
+              </p>
+            </div>
           </div>
         )}
       </div>

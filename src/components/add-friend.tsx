@@ -48,8 +48,8 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
   }
 
   return (
-    <div className="border-b border-gray-100 bg-white px-4 py-2 ">
-      <div className="relative flex items-center">
+    <div className="bg-white">
+      <div className="relative flex items-center gap-3">
         <motion.button
           type="button"
           onClick={() => setIsOpen((currentValue) => !currentValue)}
@@ -59,13 +59,22 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
             backgroundColor: isOpen ? "#2563eb" : "#111827",
           }}
           transition={{ type: "spring", stiffness: 420, damping: 28 }}
-          className="flex h-11 w-11 items-center justify-center rounded-2xl text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white"
           aria-label={
             isOpen ? "Cerrar formulario de amigo" : "Abrir formulario de amigo"
           }
         >
           <UserPlus size={18} />
         </motion.button>
+
+        {!isOpen && (
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-stone-800">Añadir amigo</p>
+            <p className="text-xs text-stone-500">
+              Envía una solicitud por correo.
+            </p>
+          </div>
+        )}
 
         <AnimatePresence initial={false}>
           {isOpen && (
@@ -84,14 +93,14 @@ export const AddFriend = ({ onAdd }: { onAdd: () => Promise<void> | void }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Correo electrónico"
-                  className="flex-1 rounded-xl border-1 border-primary-500 bg-white px-3 py-2.5 text-base md:text-sm text-gray-700 outline-none transition focus:border-primary-500"
+                  className="flex-1 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-base text-stone-700 outline-none transition focus:border-violet-500 focus:bg-white"
                   autoFocus
                 />
                 <motion.button
                   type="button"
                   onClick={handleAdd}
                   whileTap={{ scale: 0.96 }}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white transition hover:bg-blue-700"
                   aria-label="Enviar solicitud de amistad"
                 >
                   <SendHorizonal size={16} />

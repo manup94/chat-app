@@ -11,14 +11,24 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+          const internalApiSecret = process.env.API_INTERNAL_SECRET
+          const appUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+          const headers: HeadersInit = {
+            "Content-Type": "application/json",
+          }
+
+          if (internalApiSecret) {
+            headers["x-internal-api-secret"] = internalApiSecret
+          } else {
+            headers.origin = appUrl
+            headers.referer = `${appUrl}/login`
+          }
+
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-internal-api-secret": process.env.API_INTERNAL_SECRET ?? "",
-              },
+              headers,
               body: JSON.stringify({
                 email: credentials?.email,
                 password: credentials?.password,

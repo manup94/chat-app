@@ -57,27 +57,44 @@ export const FriendRequests = ({
   }
 
   return (
-    <div className="p-4 border-b border-gray-100">
-      <h3 className="text-sm font-semibold text-gray-700 mb-2">Solicitudes</h3>
-      {requests.map((req) => (
-        <div key={req.id} className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600">{req.senderName}</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleAction(req.id, "ACCEPTED")}
-              className="text-green-600 text-xs font-bold"
-            >
-              Aceptar
-            </button>
-            <button
-              onClick={() => handleAction(req.id, "REJECTED")}
-              className="text-red-600 text-xs font-bold"
-            >
-              Rechazar
-            </button>
+    <div className="mt-3 border-t border-stone-100 pt-3">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-stone-800">Solicitudes</h3>
+        <span className="rounded-full bg-stone-100 px-2 py-1 text-[11px] font-semibold text-stone-500">
+          {requests.length}
+        </span>
+      </div>
+
+      {requests.length === 0 ? (
+        <p className="text-xs leading-5 text-stone-500">
+          No tienes solicitudes pendientes.
+        </p>
+      ) : (
+        requests.map((req) => (
+          <div
+            key={req.id}
+            className="mt-2 rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3"
+          >
+            <p className="truncate text-sm font-medium text-stone-700">
+              {req.senderName}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => handleAction(req.id, "ACCEPTED")}
+                className="min-h-11 flex-1 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Aceptar
+              </button>
+              <button
+                onClick={() => handleAction(req.id, "REJECTED")}
+                className="min-h-11 flex-1 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-stone-600 transition hover:bg-stone-100"
+              >
+                Rechazar
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   )
 }
