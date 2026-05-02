@@ -13,6 +13,7 @@ interface ChatWindowProps {
   friend: Friend
   initialMessages: Message[]
   currentUserId: string
+  initialAccessToken?: string
   socketUrl: string
   onConversationActivity: (message: Message) => void
   onBack?: () => void
@@ -22,6 +23,7 @@ export const ChatWindow = ({
   friend,
   initialMessages,
   currentUserId,
+  initialAccessToken,
   socketUrl,
   onConversationActivity,
   onBack,
@@ -29,11 +31,16 @@ export const ChatWindow = ({
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [newMessage, setNewMessage] = useState("")
   const [loading, setLoading] = useState(false)
-  const { data: session } = useSession()
-  const { fetchWithAuth } = useApi()
+  const { data: session, status } = useSession()
+  const { fetchWithAuth, authStatus, hasAccessToken, accessToken } = useApi(
+    initialAccessToken
+  )
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  const { socket, isConnected, error } = useSocket(socketUrl, session?.accessToken)
+  const { socket, isConnected, error } = useSocket(
+    socketUrl,
+    accessToken ?? (status === "authenticated" ? session?.accessToken : undefined)
+  )
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -53,10 +60,23 @@ export const ChatWindow = ({
       }
     }
 
-    if (session) {
+    if (
+      authStatus !== "loading" &&
+      hasAccessToken &&
+      accessToken &&
+      (session || initialAccessToken)
+    ) {
       fetchMessages()
     }
-  }, [friend.id, session, fetchWithAuth])
+  }, [
+    accessToken,
+    authStatus,
+    fetchWithAuth,
+    friend.id,
+    hasAccessToken,
+    initialAccessToken,
+    session,
+  ])
 
   useEffect(() => {
     if (!socket) return

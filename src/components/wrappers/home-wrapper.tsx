@@ -17,7 +17,12 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { fetchWithAuth } = useApi()
+  const {
+    fetchWithAuth,
+    authStatus,
+    hasAccessToken,
+    accessToken,
+  } = useApi(initialSession.accessToken)
 
   const fetchFriends = useCallback(async () => {
     try {
@@ -47,8 +52,12 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
   }, [fetchWithAuth])
 
   useEffect(() => {
+    if (authStatus === "loading" || !hasAccessToken || !accessToken) {
+      return
+    }
+
     fetchFriends()
-  }, [fetchFriends])
+  }, [accessToken, authStatus, fetchFriends, hasAccessToken])
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
@@ -134,6 +143,7 @@ export const HomeWrapper = ({ initialSession }: HomeWrapperProps) => {
               friend={selectedFriend}
               initialMessages={[]}
               currentUserId={initialSession.user?.id ?? ""}
+              initialAccessToken={initialSession.accessToken}
               socketUrl={
                 process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
               }

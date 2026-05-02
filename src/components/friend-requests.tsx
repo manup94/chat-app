@@ -14,8 +14,8 @@ export const FriendRequests = ({
 }: {
   onAction: () => Promise<void> | void
 }) => {
-  const { data: session } = useSession()
-  const { fetchWithAuth } = useApi()
+  const { data: session, status } = useSession()
+  const { fetchWithAuth, authStatus, hasAccessToken } = useApi()
   const [requests, setRequests] = useState<FriendRequest[]>([])
 
   const fetchRequests = useCallback(async () => {
@@ -33,10 +33,10 @@ export const FriendRequests = ({
   }, [fetchWithAuth])
 
   useEffect(() => {
-    if (session) {
+    if (session && status === "authenticated" && authStatus === "authenticated" && hasAccessToken) {
       fetchRequests()
     }
-  }, [fetchRequests, session])
+  }, [authStatus, fetchRequests, hasAccessToken, session, status])
 
   const handleAction = async (id: string, status: string) => {
     try {

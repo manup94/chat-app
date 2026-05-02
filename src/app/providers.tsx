@@ -1,11 +1,18 @@
 "use client"
 
+import { Session } from "next-auth"
 import { SessionProvider } from "next-auth/react"
 import { Toaster } from "sonner"
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  children,
+  session,
+}: {
+  children: React.ReactNode
+  session: Session | null
+}) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <Toaster
         position="top-right"
         richColors

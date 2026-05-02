@@ -8,7 +8,12 @@ export const useSocket = (url: string, token?: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!url) return;
+    if (!url || !token) {
+      setSocket(null);
+      setIsConnected(false);
+      setError(null);
+      return;
+    }
 
     const socketInstance = io(url, {
       withCredentials: true,
@@ -36,7 +41,7 @@ export const useSocket = (url: string, token?: string) => {
       setError(err);
       setIsConnected(false);
       
-      if (err.message.includes("Authentication error")) {
+      if (token && err.message.includes("Authentication error")) {
         console.warn("Error de autenticación en Socket. Cerrando sesión...");
         signOut({ callbackUrl: "/login" });
       }
